@@ -1,0 +1,20 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Create Listing</h2>
+
+    <div id="listing_form_wrapper" class="mb-3">
+        <form action="{% url 'create_listing' %}" method="POST">
+            <!-- title for the listing, a text-based description, and what the starting bid should be. URL for an image for the listing and/or a category (e.g. Fashion, Toys, Electronics, Home, etc.) -->
+            {% csrf_token %}
+            {{ form.management_form }}
+            {% for field in form %}
+                <div class="form-row">
+                    <div class="form-label">{{ field.label_tag }}</div>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <input type="submit" value="Create">
+        </form>
+    </div>
+{% endblock %}
