@@ -49,6 +49,7 @@ class Listing(models.Model):
     # Fields required by criteria[2], "Active Listings Page"
     created_on = models.DateTimeField(auto_now_add=True)
     closed_on = models.DateTimeField(null=True, blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="auctions")
 
     # Fields required by criteria[4], "Watchlist"
     watchers = models.ManyToManyField(User, blank=True, related_name="watching")
@@ -58,14 +59,12 @@ class Listing(models.Model):
 
 
 
-
-
-
 class Bid(models.Model):
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids_made")
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     amount = models.DecimalField(max_digits=MAX_BID_DIGITS, decimal_places=2)
     created_on = models.DateTimeField(auto_now_add=True)
+    winning_bid = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.bidder} bid £{self.amount} on {self.listing.title}"
