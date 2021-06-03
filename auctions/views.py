@@ -15,7 +15,7 @@ def index(request):
     current = Listing.objects.filter(closed_on__isnull=True)
 
     for l in current:
-        l.image_url = util.get_image_url(l.image_url)
+        l.image_url = l.final_image_url()
 
     return render(request, "auctions/index.html", {
         "active_auctions": current
@@ -98,7 +98,8 @@ def create_listing(request):
 
 def listing(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
-    listing.image_url = util.get_image_url(listing.image_url)
+    #listing.image_url = util.get_image_url(listing.image_url)
+    listing.image_url = listing.final_image_url()
 
     user = User.objects.get(username=request.user)
     watching = listing in user.watching.all()

@@ -17,7 +17,7 @@ CAT_HEALTH = "Health"
 CAT_MEDIA = "Media"
 CAT_MISC = "Other"
 
-
+DEFAULT_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
 
 class User(AbstractUser):
     # Fields required by criteria[4], "Watchlist"
@@ -27,6 +27,7 @@ class User(AbstractUser):
 
 class Listing(models.Model):
 # Ebay top-level categories
+    
     CATEGORIES = [
         (CAT_FASHION, "Fashion"),
         (CAT_ELECTRONICS, "Electronics"),
@@ -54,6 +55,12 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"Auction {self.title}"
+
+    def final_image_url(self):
+        if self.image_url == "":
+            return DEFAULT_IMAGE_URL
+        else:
+            return self.image_url
 
 
 
