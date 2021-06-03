@@ -45,3 +45,28 @@ body {
     -moz-appearance: none;
     appearance: none;
 }
+
+.list-pic-container{
+    display: inline-flex;
+    width: 30%;
+}
+
+.homepage-pic{
+    min-width: 64px;
+    width: 100%;
+    height: auto;
+}
+
+.list-info{
+    display: inline-flex;
+    width: 50%;
+}
+
+.top-bid{
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+#active-listings{
+    margin-left: 5px;
+}

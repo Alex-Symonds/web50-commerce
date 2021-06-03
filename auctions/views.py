@@ -11,7 +11,10 @@ from .forms import NewListingForm
 from django.forms import ModelForm
 
 def index(request):
-    return render(request, "auctions/index.html")
+    current = Listing.objects.filter(closed_on__isnull=True)
+    return render(request, "auctions/index.html", {
+        "active_auctions": current
+    })
 
 
 def login_view(request):
