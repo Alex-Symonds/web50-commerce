@@ -32,17 +32,23 @@
         {{ listing.description }}
     </div>
     <div id="listing-bid-container">
-        <span class="listing-top-bid">£TODO</span>
+        <span class="listing-top-bid">£{{ current_price }}</span>
 
-        N bid(s) received so far. 
+        {{ num_bids }} bid(s) received so far. 
 
-        {% if user.is_authenticated %}
-            TODO: "Your bid is the top bid." or "Your bid has been beaten." or "You have not bid on this item."
+        {% if user.is_authenticated and user.username != listing.owner.username %}
+            {% if not user_top_bid %}
+                <p>You have not bid on this item.</p>
+            {% else %}
+                TODO: "Your bid is the top bid." or "Your bid has been beaten."
+            {% endif %}
 
             <form action="{% url 'listing' listing.id %}" method="POST">
                 <input id="new_bid" type="text" name="new_bid">
                 <input type="submit" value="Bid">
             </form>
+        {% elif user.is_authenticated %}
+            TODO: Form to close the auction and declare a winner.
         {% endif %}
     </div>
     <div id="listing-details">

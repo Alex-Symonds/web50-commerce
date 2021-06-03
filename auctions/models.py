@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.deletion import CASCADE
+from django.db.models import Max
 
 # Constants
 MAX_BID_DIGITS = 13
@@ -62,6 +63,11 @@ class Listing(models.Model):
         else:
             return self.image_url
 
+    def num_bids(self):
+        return self.bids.count()
+
+    def high_bid(self):
+        return self.bids.aggregate(Max("amount"))
 
 
 class Bid(models.Model):

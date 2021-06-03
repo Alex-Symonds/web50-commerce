@@ -4,10 +4,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
 
 from .models import User, Listing, Bid, Comment
 from .forms import NewListingForm
-from . import util
 
 from django.forms import ModelForm
 
@@ -97,16 +97,37 @@ def create_listing(request):
         })
 
 def listing(request, listing_id):
-    listing = Listing.objects.get(id=listing_id)
-    #listing.image_url = util.get_image_url(listing.image_url)
-    listing.image_url = listing.final_image_url()
 
+    # Grab the listing and set the image URL to default if there isn't one
+    myListing = Listing.objects.get(id=listing_id)
+    myListing.image_url = myListing.final_image_url()
+
+    # Prpeare watchlist variables
     user = User.objects.get(username=request.user)
-    watching = listing in user.watching.all()
+    watching = myListing in user.watching.all()
+
+    # Prepare listing-centric bid variables
+    num_bids = myListing.num_bids()
+    high_bid = None
+    if num_bids == 0:
+        current_price = myListing.starting_bid
+    else:
+        high_bid = myListing.high_bid()
+        current_price = high_bid.amount
+
+    # Prepare user-centric bid variables  
+    user_bids = Bid.objects.filter(bidder__username=user.username).filter(listing=myListing)
+    user_top_bid = None
+    if user_bids.count() > 0:
+        user_top_bid = user_bids.aggregate(Max("amount"))
 
     return render(request, "auctions/listing.html", {
-        "listing": listing,
-        "watching": watching
+        "listing": myListing,
+        "watching": watching,
+        "num_bids": num_bids,
+        "current_price": current_price,
+        "high_bid": high_bid,
+        "user_top_bid": user_top_bid
     })
 
 def watchlist(request):
@@ -121,4 +142,12 @@ def watchlist(request):
             user.watching.add(l)
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
+    pass
+
+
+
+def bid(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.get(id=listing_id)
+
     pass
