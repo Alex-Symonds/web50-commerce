@@ -70,3 +70,17 @@ body {
 #active-listings{
     margin-left: 5px;
 }
+
+#watch-status{
+    width: 10rem;
+}
+
+.watched{
+    background: green;
+    color: white;
+}
+
+.not-watched{
+    background: #eee;
+    color: #444;
+}

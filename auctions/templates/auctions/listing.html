@@ -1,0 +1,55 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h1>Listing: {{ listing.title }}</h1>
+
+    {% if user.is_authenticated %}
+        <div id="watch-status" 
+            {% if watching %}
+                class="watched"
+            {% else %}
+                class="not-watched"
+            {% endif %}
+            >watchlist</div>
+        <form action="{% url 'watchlist' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="listing_id" value={{ listing.id }}>
+            <input id="watchlist-button" type="submit" 
+            {% if watching %}
+                value="-"
+            {% else %}
+                value="+"
+            {% endif %}
+            >
+        </form>
+    {% endif %}
+
+    <div id="listing-pic">
+        <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
+    </div>
+
+    <div id="listing-desc">
+        {{ listing.description }}
+    </div>
+    <div id="listing-bid-container">
+        <span class="listing-top-bid">£TODO</span>
+
+        N bid(s) received so far. 
+
+        {% if user.is_authenticated %}
+            TODO: "Your bid is the top bid." or "Your bid has been beaten." or "You have not bid on this item."
+
+            <form action="{% url 'listing' listing.id %}" method="POST">
+                <input id="new_bid" type="text" name="new_bid">
+                <input type="submit" value="Bid">
+            </form>
+        {% endif %}
+    </div>
+    <div id="listing-details">
+        <h2>Details</h2>
+        Listed by: {{ listing.owner }}<br />
+        Category: {{ listing.category }}
+    </div>
+    
+
+{% endblock %}

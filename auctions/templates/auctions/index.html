@@ -6,16 +6,10 @@
         {% for auction in active_auctions %}
             <div class="row">
                 <div class="col-3">
-                    <img class="homepage-pic" 
-                    {% if auction.image_url %}
-                        src="{{ auction.image_url }}"
-                    {% else %}
-                        src="https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
-                    {% endif %}
-                        alt="{{ auction.title }}">
+                    <img class="homepage-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
                 </div>
                 <div class="col-9">
-                    <h3>{{ auction.title }}</h3>
+                    <h3><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
                     <div class="top-bid">Price: £{{ auction.starting_bid }}</div>
                     <p>{{ auction.description }}</p>
                     <div class="creation_time">{{ auction.created_on }}</div>
