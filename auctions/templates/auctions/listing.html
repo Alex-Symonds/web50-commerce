@@ -85,6 +85,26 @@
         Listed by: {{ listing.owner }}<br />
         Category: {{ listing.category }}
     </div>
+    <div id="comment-container">
+        <h2>Comments</h2>
+
+        {% for comment in comments %}
+            <div class="comment-box">
+                <div>{{ comment.user.username }}</div>
+                <div>{{ comment.created_on }}</div>
+                <div>{{ comment.content }}</div>
+            </div>
+        {% empty %}
+            <p>No comments.</p>
+        {% endfor %}
+
+        <form action="{% url 'comment' listing.id %}" method="POST">
+            {% csrf_token %}
+            <textarea name="new_comment" id="new_comment"></textarea>
+            <input type="submit" value="Add comment">
+        </form>
+
+    </div>
     
 
 {% endblock %}

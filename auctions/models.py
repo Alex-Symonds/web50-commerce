@@ -67,12 +67,7 @@ class Listing(models.Model):
         return self.bids.count()
 
     def high_bid(self):
-        #hb = self.bids.aggregate(Max("amount")) <- this results in {'amount__max': whatever}
-        #if not hb['amount__max']:
-        #    return None
-        #else:
-        #    return hb
-        return self.bids.order_by('-amount').first()
+         return self.bids.order_by('-amount').first()
 
 
 
@@ -92,16 +87,16 @@ class Bid(models.Model):
             return self.amount > hb.amount
 
     def __str__(self):
-        return f"{self.bidder} bid £{self.amount} on {self.listing.title}"
+        return f"£{self.amount} on {self.listing.title} ({self.bidder})"
     
 
 
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name = "comments_made")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments_made")
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user} "
+        return f"{self.created_on}: {self.user} re. {self.listing}"

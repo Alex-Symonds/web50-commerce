@@ -118,10 +118,18 @@ def listing(request, listing_id):
         current_price = high_bid.amount
 
     # Prepare user-centric bid variables  
-    user_bids = Bid.objects.filter(bidder__username=user.username).filter(listing=myListing)
+    #user_bids = Bid.objects.filter(bidder__username=user.username).filter(listing=myListing)
+    user_bids = user.bids_made.filter(listing=myListing)
     user_top_bid = None
     if user_bids.count() > 0:
-        user_top_bid = user_bids.aggregate(Max("amount"))
+        user_top_bid = user_bids.order_by('-amount').first()
+
+    # Prepare comments
+    c = myListing.comments.all()
+    if c:
+        comments = c.order_by("-created_on")
+    else:
+        comments = c
 
     return render(request, "auctions/listing.html", {
         "listing": myListing,
@@ -129,7 +137,8 @@ def listing(request, listing_id):
         "num_bids": num_bids,
         "current_price": current_price,
         "high_bid": high_bid,
-        "user_top_bid": user_top_bid
+        "user_top_bid": user_top_bid,
+        "comments": comments
     })
 
 
@@ -195,3 +204,23 @@ def close(request, listing_id):
         "error_message": error_message
     })
 
+
+def add_comment(request, listing_id):
+    error_message = "This page is supposed to go whooshing by when you add a comment. Try clicking the back arrow."
+
+    if request.method == "POST":
+        listing = Listing.objects.get(id=listing_id)
+        user = User.objects.get(username=request.user)
+
+        try:
+            content = request.POST.get("new_comment", "")
+        except:
+            error_message = "Failed to add comment because Reasons."
+        else:
+            c = Comment(user=user, listing=listing, content=content)
+            c.save()
+            return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
+
+    return render(request, "auctions/error.html", {
+        "error_message": error_message
+    })
