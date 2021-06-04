@@ -36,13 +36,14 @@
             <h2>Winning bid</h2>
             <span class="listing-winning-bid">
         {% else %}
-            <h2>Auction status</h2>
+            <h2>Current bid</h2>
             <span class="listing-top-bid">
         {% endif %}
         £{{ current_price }}</span>
         <p>{{ num_bids }} bid(s) received.</p>
 
         {% if user.is_authenticated and user.username == listing.owner.username %}
+            <h2>Auction Management</h2>
 
             {% if not high_bid.winning_bid %}
                 <form action="{% url 'close' listing_id=listing.id %}" method="POST">
@@ -50,16 +51,21 @@
                     <label for="close-auction">Close auction at £{{ current_price }}</label>
                     <input id="close-auction" name="close_auction" type="submit" value="Close Auction">
                 </form>
+            {% else %}
+                <p>You closed this auction on {{ listing.closed_on }}.</p>
             {% endif %}
 
         {% elif user.is_authenticated %}
+            <h2>Bid Management</h2>
             <p>
             {% if not user_top_bid %}
                 You have not bid on this item.
-            {% elif high_bid.bidder.username == user.username %}
-                Your bid is the top bid.
-            {% else %}
+            {% elif high_bid.bidder.username == user.username and not high_bid.winning_bid %}
+                Your bid is currently the top bid.                
+            {% elif not high_bid.winning_bid %}
                 Your bid has been beaten.
+            {% else %}
+                You won this auction. Congratulations!
             {% endif %}
             </p>
 
