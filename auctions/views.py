@@ -144,18 +144,26 @@ def listing(request, listing_id):
 
 
 def watchlist(request):
+    user = User.objects.get(username=request.user)
+    my_watchlist = user.watching.all()
+
     if request.method == "POST":
         listing_id = request.POST.get("listing_id", "")
-        user = User.objects.get(username=request.user)
         l = Listing.objects.get(id=listing_id)
 
-        if l in user.watching.all():
+        if l in my_watchlist:
             user.watching.remove(l)
         else:
             user.watching.add(l)
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
-    pass
+
+    for w in my_watchlist:
+        w.image_url = w.final_image_url()
+
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": my_watchlist
+    })
 
 
 

@@ -1,0 +1,21 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h1>Watchlist</h1>
+
+    {% for listing in watchlist %}
+        <div class="watchlist-listing row">
+            <div class="col-2">
+                <img class="homepage-pic" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+            </div>
+            <div class="col-10">
+                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></h3>
+                <div class="top-bid">Price: £{{ listing.starting_bid }}</div>
+                <p>{{ listing.description }}</p>
+                <div class="creation_time">{{ listing.created_on }}</div>
+            </div>
+        </div>
+    {% empty %}
+        <p>You are not watching any auctions.</p>
+    {% endfor %}
+{% endblock %}

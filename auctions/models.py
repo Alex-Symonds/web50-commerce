@@ -47,7 +47,7 @@ class Listing(models.Model):
     description = models.TextField()
     starting_bid = models.DecimalField(max_digits=MAX_BID_DIGITS, decimal_places=2)
     image_url = models.CharField(max_length=2000, blank=True)
-    category = models.CharField(max_length=14, choices=CATEGORIES)
+    category = models.CharField(max_length=14, choices=CATEGORIES, blank=True)
 
     # Fields required by criteria[2], "Active Listings Page"
     created_on = models.DateTimeField(auto_now_add=True)
