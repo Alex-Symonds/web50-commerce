@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
+import decimal
+from datetime import datetime
 
 from .models import User, Listing, Bid, Comment
 from .forms import NewListingForm
@@ -130,6 +132,8 @@ def listing(request, listing_id):
         "user_top_bid": user_top_bid
     })
 
+
+
 def watchlist(request):
     if request.method == "POST":
         listing_id = request.POST.get("listing_id", "")
@@ -147,7 +151,47 @@ def watchlist(request):
 
 
 def bid(request, listing_id):
+    error_message = "This page is supposed to go whooshing by when you place a bid. Try clicking the back arrow."
+
     if request.method == "POST":
         listing = Listing.objects.get(id=listing_id)
+        bidder = User.objects.get(username=request.user)
 
-    pass
+        try:
+            bid_value = decimal.Decimal(request.POST.get("new_bid", 0))
+
+        except decimal.InvalidOperation:
+            error_message = "Barter is not supported: all bids must be a number representing a monetary value."
+
+        else:
+            b = Bid(listing=listing, bidder=bidder, amount=bid_value)
+
+            if b.is_valid():
+                b.save()
+                return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
+            else:
+                hb = listing.high_bid()
+                error_message="Bid failed. Bid must be larger than the highest bid, £" + str(hb.amount)
+    
+    return render(request, "auctions/error.html", {
+        "error_message": error_message
+    })
+
+def close(request, listing_id):
+    error_message = "This page is supposed to go whooshing by when you close an auction. Try clicking the back arrow."
+
+    if request.method == "POST":
+        listing = Listing.objects.get(id=listing_id)
+        hb = listing.high_bid()
+
+        listing.closed_on = datetime.now()
+        hb.winning_bid = True
+
+        listing.save()
+        hb.save()
+        return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
+        
+    return render(request, "auctions/error.html", {
+        "error_message": error_message
+    })
+

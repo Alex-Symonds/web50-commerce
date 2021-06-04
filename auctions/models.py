@@ -67,7 +67,14 @@ class Listing(models.Model):
         return self.bids.count()
 
     def high_bid(self):
-        return self.bids.aggregate(Max("amount"))
+        #hb = self.bids.aggregate(Max("amount")) <- this results in {'amount__max': whatever}
+        #if not hb['amount__max']:
+        #    return None
+        #else:
+        #    return hb
+        return self.bids.order_by('-amount').first()
+
+
 
 
 class Bid(models.Model):
@@ -77,8 +84,16 @@ class Bid(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     winning_bid = models.BooleanField(default=False)
 
+    def is_valid(self):
+        hb = self.listing.high_bid()
+        if not hb:
+            return self.amount > self.listing.starting_bid
+        else:
+            return self.amount > hb.amount
+
     def __str__(self):
         return f"{self.bidder} bid £{self.amount} on {self.listing.title}"
+    
 
 
 

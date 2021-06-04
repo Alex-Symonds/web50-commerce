@@ -32,24 +32,47 @@
         {{ listing.description }}
     </div>
     <div id="listing-bid-container">
-        <span class="listing-top-bid">£{{ current_price }}</span>
+        {% if high_bid.winning_bid %}
+            <h2>Winning bid</h2>
+            <span class="listing-winning-bid">
+        {% else %}
+            <h2>Auction status</h2>
+            <span class="listing-top-bid">
+        {% endif %}
+        £{{ current_price }}</span>
+        <p>{{ num_bids }} bid(s) received.</p>
 
-        {{ num_bids }} bid(s) received so far. 
+        {% if user.is_authenticated and user.username == listing.owner.username %}
 
-        {% if user.is_authenticated and user.username != listing.owner.username %}
-            {% if not user_top_bid %}
-                <p>You have not bid on this item.</p>
-            {% else %}
-                TODO: "Your bid is the top bid." or "Your bid has been beaten."
+            {% if not high_bid.winning_bid %}
+                <form action="{% url 'close' listing_id=listing.id %}" method="POST">
+                    {% csrf_token %}
+                    <label for="close-auction">Close auction at £{{ current_price }}</label>
+                    <input id="close-auction" name="close_auction" type="submit" value="Close Auction">
+                </form>
             {% endif %}
 
-            <form action="{% url 'listing' listing.id %}" method="POST">
-                <input id="new_bid" type="text" name="new_bid">
-                <input type="submit" value="Bid">
-            </form>
         {% elif user.is_authenticated %}
-            TODO: Form to close the auction and declare a winner.
+            <p>
+            {% if not user_top_bid %}
+                You have not bid on this item.
+            {% elif high_bid.bidder.username == user.username %}
+                Your bid is the top bid.
+            {% else %}
+                Your bid has been beaten.
+            {% endif %}
+            </p>
+
+            {% if not high_bid.winning_bid %}
+                <p>{{ bid_message }}</p>
+                <form action="{% url 'bid' listing_id=listing.id %}" method="POST">
+                    {% csrf_token %}
+                    <input id="new_bid" type="text" name="new_bid">
+                    <input type="submit" value="Bid">
+                </form>
+            {% endif %}
         {% endif %}
+
     </div>
     <div id="listing-details">
         <h2>Details</h2>
