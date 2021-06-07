@@ -9,7 +9,7 @@ import decimal
 from datetime import datetime
 
 from .models import User, Listing, Bid, Comment
-from .forms import NewListingForm, BidForm
+from .forms import NewListingForm, BidForm, CommentForm
 
 from django.forms import ModelForm
 
@@ -148,7 +148,8 @@ def listing(request, listing_id):
         "high_bid": high_bid,
         "user_top_bid": user_top_bid,
         "comments": comments,
-        "bid_form": BidForm
+        "bid_form": BidForm,
+        "comment_form": CommentForm
     })
 
 
@@ -193,24 +194,13 @@ def bid(request, listing_id):
     error_message = "This page is supposed to go whooshing by when you place a bid. Try clicking the back arrow."
 
     if request.method == "POST":
-        # Check the value entered by the user is a number
-        #try:
-        #    bid_value = decimal.Decimal(request.POST.get("new_bid", 0))
-
-        #except decimal.InvalidOperation:
-        #    error_message = "Barter is not supported: all bids must be a number representing a monetary value in GBP."
+        # Load as a form, create a bid object
         user_form = BidForm(request.POST)
         if user_form.is_valid():
             listing = Listing.objects.get(id=listing_id)
             bidder = User.objects.get(username=request.user)
             b = Bid(listing=listing, bidder=bidder, amount=user_form.cleaned_data["amount"])
         
-        # If so, prepare the new bid record
-        #else:
-        #    listing = Listing.objects.get(id=listing_id)
-        #    bidder = User.objects.get(username=request.user)
-        #    b = Bid(listing=listing, bidder=bidder, amount=bid_value)
-
             # Use the Bid class's "is_valid" method to validate the proposed bid.
             if b.is_valid():
                 # Save the bid and send the user back to the listing page
@@ -278,13 +268,10 @@ def add_comment(request, listing_id):
     if request.method == "POST":
         listing = Listing.objects.get(id=listing_id)
         user = User.objects.get(username=request.user)
+        user_form = CommentForm(request.POST)
 
-        try:
-            content = request.POST.get("new_comment", "")
-        except:
-            error_message = "Failed to add comment because Reasons."
-        else:
-            c = Comment(user=user, listing=listing, content=content)
+        if user_form.is_valid():
+            c = Comment(user=user, listing=listing, content=user_form.cleaned_data["content"])
             c.save()
             return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
 

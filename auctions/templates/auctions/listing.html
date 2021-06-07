@@ -104,7 +104,11 @@
 
         <form action="{% url 'comment' listing.id %}" method="POST">
             {% csrf_token %}
-            <textarea name="new_comment" id="new_comment"></textarea>
+            <!--<textarea name="new_comment" id="new_comment"></textarea>-->
+            {{ comment_form.management_form }}
+            {% for field in comment_form %}
+                {{ field }}
+            {% endfor %}
             <input type="submit" value="Add comment">
         </form>
 

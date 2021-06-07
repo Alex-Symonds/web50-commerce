@@ -3,6 +3,8 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.db.models import Max
 
+import datetime
+
 # Constants
 MAX_BID_DIGITS = 13
 
@@ -99,4 +101,4 @@ class Comment(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.created_on}: {self.user} re. {self.listing}"
+        return f"{self.created_on - datetime.timedelta(microseconds=self.created_on.microsecond)}: {self.user} re. {self.listing}"
