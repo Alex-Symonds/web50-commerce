@@ -22,7 +22,7 @@
             </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
+                    <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a> <div id="watchlist-counter">{{ WATCHLIST_COUNT }}</div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'categories' %}">Categories</a>
