@@ -9,7 +9,7 @@ import decimal
 from datetime import datetime
 
 from .models import User, Listing, Bid, Comment
-from .forms import NewListingForm
+from .forms import NewListingForm, BidForm
 
 from django.forms import ModelForm
 
@@ -147,7 +147,8 @@ def listing(request, listing_id):
         "current_price": current_price,
         "high_bid": high_bid,
         "user_top_bid": user_top_bid,
-        "comments": comments
+        "comments": comments,
+        "bid_form": BidForm
     })
 
 
@@ -193,17 +194,22 @@ def bid(request, listing_id):
 
     if request.method == "POST":
         # Check the value entered by the user is a number
-        try:
-            bid_value = decimal.Decimal(request.POST.get("new_bid", 0))
+        #try:
+        #    bid_value = decimal.Decimal(request.POST.get("new_bid", 0))
 
-        except decimal.InvalidOperation:
-            error_message = "Barter is not supported: all bids must be a number representing a monetary value in GBP."
-
-        # If so, prepare the new bid record
-        else:
+        #except decimal.InvalidOperation:
+        #    error_message = "Barter is not supported: all bids must be a number representing a monetary value in GBP."
+        user_form = BidForm(request.POST)
+        if user_form.is_valid():
             listing = Listing.objects.get(id=listing_id)
             bidder = User.objects.get(username=request.user)
-            b = Bid(listing=listing, bidder=bidder, amount=bid_value)
+            b = Bid(listing=listing, bidder=bidder, amount=user_form.cleaned_data["amount"])
+        
+        # If so, prepare the new bid record
+        #else:
+        #    listing = Listing.objects.get(id=listing_id)
+        #    bidder = User.objects.get(username=request.user)
+        #    b = Bid(listing=listing, bidder=bidder, amount=bid_value)
 
             # Use the Bid class's "is_valid" method to validate the proposed bid.
             if b.is_valid():
@@ -212,8 +218,12 @@ def bid(request, listing_id):
                 return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
             else:
                 # Prepare a helpful error message.
+                error_message="Bid failed. Bid must be larger than the highest bid, £"
                 hb = listing.high_bid()
-                error_message="Bid failed. Bid must be larger than the highest bid, £" + str(hb.amount)
+                if hb:
+                     error_message += str(hb.amount)
+                else:
+                    error_message += str(listing.starting_bid)
     
     # Error page
     return render(request, "auctions/error.html", {

@@ -73,7 +73,11 @@
                 <p>{{ bid_message }}</p>
                 <form action="{% url 'bid' listing_id=listing.id %}" method="POST">
                     {% csrf_token %}
-                    <input id="new_bid" type="text" name="new_bid">
+                    <!--<input id="new_bid" type="text" name="new_bid">-->
+                    {{ bid_form.management_form }}
+                    {% for field in bid_form %}
+                        {{ field }}
+                    {% endfor %}
                     <input type="submit" value="Bid">
                 </form>
             {% endif %}
