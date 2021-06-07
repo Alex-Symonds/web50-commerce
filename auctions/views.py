@@ -76,8 +76,13 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
+
 @login_required
 def create_listing(request):
+    """
+    GET = Form to create a listing
+    POST = Process the new listing and forward to index
+    """
     if request.method == "POST":
         user_form = NewListingForm(request.POST)
         if user_form.is_valid():
@@ -98,13 +103,18 @@ def create_listing(request):
             "form": NewListingForm
         })
 
-def listing(request, listing_id):
 
+
+
+def listing(request, listing_id):
+    """
+    GET = Display a single listing
+    """
     # Grab the listing and set the image URL to default if there isn't one
     myListing = Listing.objects.get(id=listing_id)
     myListing.image_url = myListing.final_image_url()
 
-    # Prpeare watchlist variables
+    # Prepare watchlist variables
     user = User.objects.get(username=request.user)
     watching = myListing in user.watching.all()
 
@@ -118,7 +128,6 @@ def listing(request, listing_id):
         current_price = high_bid.amount
 
     # Prepare user-centric bid variables  
-    #user_bids = Bid.objects.filter(bidder__username=user.username).filter(listing=myListing)
     user_bids = user.bids_made.filter(listing=myListing)
     user_top_bid = None
     if user_bids.count() > 0:
@@ -142,11 +151,17 @@ def listing(request, listing_id):
     })
 
 
-
+@login_required
 def watchlist(request):
+    """
+    POST = Toggle listing in watchlist
+    GET = Display watchlist
+    """
+    # Prepare the user and current watchlist, which are needed either way
     user = User.objects.get(username=request.user)
     my_watchlist = user.watching.all()
 
+    # Toggle listing in user's watchlist
     if request.method == "POST":
         listing_id = request.POST.get("listing_id", "")
         l = Listing.objects.get(id=listing_id)
@@ -158,6 +173,7 @@ def watchlist(request):
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
 
+    # Display user's watchlist (after prepping images)
     for w in my_watchlist:
         w.image_url = w.final_image_url()
 
@@ -167,53 +183,86 @@ def watchlist(request):
 
 
 
+@login_required
 def bid(request, listing_id):
+    """
+    POST = Place a bid
+    GET = Error page
+    """
     error_message = "This page is supposed to go whooshing by when you place a bid. Try clicking the back arrow."
 
     if request.method == "POST":
-        listing = Listing.objects.get(id=listing_id)
-        bidder = User.objects.get(username=request.user)
-
+        # Check the value entered by the user is a number
         try:
             bid_value = decimal.Decimal(request.POST.get("new_bid", 0))
 
         except decimal.InvalidOperation:
-            error_message = "Barter is not supported: all bids must be a number representing a monetary value."
+            error_message = "Barter is not supported: all bids must be a number representing a monetary value in GBP."
 
+        # If so, prepare the new bid record
         else:
+            listing = Listing.objects.get(id=listing_id)
+            bidder = User.objects.get(username=request.user)
             b = Bid(listing=listing, bidder=bidder, amount=bid_value)
 
+            # Use the Bid class's "is_valid" method to validate the proposed bid.
             if b.is_valid():
+                # Save the bid and send the user back to the listing page
                 b.save()
                 return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
             else:
+                # Prepare a helpful error message.
                 hb = listing.high_bid()
                 error_message="Bid failed. Bid must be larger than the highest bid, £" + str(hb.amount)
     
+    # Error page
     return render(request, "auctions/error.html", {
         "error_message": error_message
     })
 
+
+
+@login_required
 def close(request, listing_id):
+    """
+    POST = Close a listing
+    GET = Error page
+    """
     error_message = "This page is supposed to go whooshing by when you close an auction. Try clicking the back arrow."
 
     if request.method == "POST":
+        # Check the user owns the auction, in case there were client-side shenanigans
         listing = Listing.objects.get(id=listing_id)
-        hb = listing.high_bid()
+        owner = Listing.owner
+        if request.user == owner:
 
-        listing.closed_on = datetime.now()
-        hb.winning_bid = True
+            # Get the highest bid and declare it the winner
+            hb = listing.high_bid()
+            listing.closed_on = datetime.now()
+            hb.winning_bid = True
 
-        listing.save()
-        hb.save()
-        return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
-        
+            # Save changes
+            listing.save()
+            hb.save()
+
+            # Render page
+            return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
+        else:
+            error_message = "You do not own this auction, so you can't close it."
+
+    # Error page    
     return render(request, "auctions/error.html", {
         "error_message": error_message
     })
 
 
+
+@login_required
 def add_comment(request, listing_id):
+    """
+    POST = Add a comment to a listing
+    GET = Error page
+    """
     error_message = "This page is supposed to go whooshing by when you add a comment. Try clicking the back arrow."
 
     if request.method == "POST":
@@ -229,6 +278,49 @@ def add_comment(request, listing_id):
             c.save()
             return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
 
+    # Error page
     return render(request, "auctions/error.html", {
         "error_message": error_message
     })
+
+
+
+def categories(request):
+    """
+    GET = Display a page showing a list of all categories, each of which links to a page filtering listings by that category.
+    """
+    # Prepare a list of category names and number of listings
+    cats = []
+    for cat in Listing.CATEGORIES:
+        catDict = {}
+        catDict["name"] = cat[1]
+        catDict["count"] = Listing.objects.filter(category=cat[0]).count()
+        cats.append(catDict)
+ 
+    # Sort the list by display name
+    cats = sorted(cats, key=lambda cn: cn["name"])
+
+    # Render the page
+    return render(request, "auctions/categories.html", {
+        "categories": cats
+    })
+
+
+
+
+def category(request, category_name):
+    """
+    GET = Display a page showing listings in a single category.
+    """
+    # Get the filtered listings
+    listings = Listing.objects.filter(category=category_name)
+    
+    # Make "image_url" contain the default image if blank
+    for l in listings:
+        listings.image_url = l.final_image_url()
+
+    # Render the page
+    return render(request, "auctions/category.html", {
+        "category": category_name,
+        "catlist": listings
+    })  
