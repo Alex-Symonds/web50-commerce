@@ -1,21 +1,46 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h1>Watchlist</h1>
+    <div class="container">
+        <h2>{{ user.username }}'s Watchlist</h2>
 
-    {% for listing in watchlist %}
-        <div class="watchlist-listing row">
-            <div class="col-2">
-                <img class="homepage-pic" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+        {% for auction in watchlist %}
+        <div class="row watchlist-row">
+            <div class="col-1">
+                <img class="auclist-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
             </div>
-            <div class="col-10">
-                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></h3>
-                <div class="top-bid">Price: £{{ listing.starting_bid }}</div>
-                <p>{{ listing.description }}</p>
-                <div class="creation_time">{{ listing.created_on }}</div>
+            <div class="col">
+                <h3><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
+            </div>
+            <div class="col-4 align-self-center">
+                <div class="watchlist-price-container">
+                    Now: <span class="watchlist-current">£{{ auction.high_bid }}</span><br />
+                    You: 
+                {% if auction.user_high_bid == "" %}
+                    No bid 
+                {% else %}
+                    {% if auction.leader == user.username %}
+                    <span class="my-bid-status-tag my-bid-status-leader my-bid-status-watchlist">top bid</span>
+                    {% else %}
+                    <span class="my-bid-status-tag my-bid-status-beaten my-bid-status-watchlist">beaten</span> <strong>£{{ auction.user_high_bid }}</strong>
+                    {% endif %}
+                {% endif %}
+                </div>
+            </div>
+            <div class="col-2 align-self-center">
+                <div class="watchlist-status {% if auction.is_active %}watchlist-active">Active {% else %}watchlist-closed">Closed {% endif %}</div>
+                <div class="watchlist-dates">
+                {% if not auction.is_active %}
+                    [-] {{ auction.closed_on }}
+                {% else %}
+                    [+] {{ auction.created_on }}
+                {% endif %}
+                </div>
             </div>
         </div>
-    {% empty %}
-        <p>You are not watching any auctions.</p>
-    {% endfor %}
+
+        {% empty %}
+            <p>You are not watching any auctions.</p>
+        {% endfor %}
+    </div>
 {% endblock %}

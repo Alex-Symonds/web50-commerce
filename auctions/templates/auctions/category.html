@@ -1,20 +1,22 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h1>{{ category }}</h1>
-    {% for listing in catlist %}
-        <div class="catlist-listing row">
-            <div class="col-2">
-                <img class="catlist-pic" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+    <div class="container">
+        <h2>{{ category }}</h2>
+        {% for auction in catlist %}
+            <div class="row auclist-row">
+                <div class="col-2">
+                    <img class="auclist-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
+                </div>
+                <div class="col">
+                    <h3><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
+                    <div class="top-bid">Price: £{{ auction.starting_bid }}</div>
+                    <div class="list-description">{{ auction.description }}</div>
+                    <div class="creation_time">{{ auction.created_on }}</div>
+                </div>
             </div>
-            <div class="col-10">
-                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></h3>
-                <div class="top-bid">Price: £{{ listing.starting_bid }}</div>
-                <p>{{ listing.description }}</p>
-                <div class="creation_time">{{ listing.created_on }}</div>
-            </div>
-        </div>
-    {% empty %}
-        <p>There are no listings in this category.</p>
-    {% endfor %}
+        {% empty %}
+            <p>There are no listings in this category.</p>
+        {% endfor %}
+    </div>
 {% endblock %}

@@ -1,20 +1,20 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-        <div id="active-listings" class="container">
+    <div id="active-listings" class="container">
+        <h2>Active Listings</h2>
         {% for auction in active_auctions %}
-            <div class="row">
-                <div class="col-3">
-                    <img class="homepage-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
+            <div class="row auclist-row">
+                <div class="col-2">
+                    <img class="auclist-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
                 </div>
-                <div class="col-9">
+                <div class="col">
                     <h3><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
                     <div class="top-bid">Price: £{{ auction.starting_bid }}</div>
-                    <p>{{ auction.description }}</p>
+                    <div class="list-description">{{ auction.description }}</div>
                     <div class="creation_time">{{ auction.created_on }}</div>
                 </div>
             </div>
         {% endfor %}
-        </div>
+    </div>
 {% endblock %}

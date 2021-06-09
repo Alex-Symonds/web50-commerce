@@ -115,8 +115,10 @@ def listing(request, listing_id):
     myListing.image_url = myListing.final_image_url()
 
     # Prepare watchlist variables
-    user = User.objects.get(username=request.user)
-    watching = myListing in user.watching.all()
+    watching = False
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user)
+        watching = myListing in user.watching.all()
 
     # Prepare listing-centric bid variables
     num_bids = myListing.num_bids()
@@ -127,11 +129,13 @@ def listing(request, listing_id):
         high_bid = myListing.high_bid()
         current_price = high_bid.amount
 
-    # Prepare user-centric bid variables  
-    user_bids = user.bids_made.filter(listing=myListing)
+    # Prepare user-centric bid variables
     user_top_bid = None
-    if user_bids.count() > 0:
-        user_top_bid = user_bids.order_by('-amount').first()
+    if request.user.is_authenticated:
+        user_bids = user.bids_made.filter(listing=myListing)
+        if user_bids.count() > 0:
+            uhb = user_bids.order_by('-amount').first()
+            user_top_bid = uhb.amount
 
     # Prepare comments
     c = myListing.comments.all()
@@ -175,12 +179,42 @@ def watchlist(request):
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
 
-    # Display user's watchlist (after prepping images)
+    # Prepare watchlist info for template
+    results = []
     for w in my_watchlist:
-        w.image_url = w.final_image_url()
+        r = {}
+
+        # General stuff directly from the model
+        r["id"] = w.id
+        r["title"] = w.title
+        r["image_url"] = w.final_image_url()
+        r["created_on"] = w.created_on
+        r["closed_on"] = w.closed_on
+        
+        # Bid related fields
+        b = w.high_bid()
+        if b == None:
+            r["high_bid"] = w.starting_bid
+            r["is_active"] = w.closed_on == None
+            r["leader"] = "no bids"            
+        else:
+            r["high_bid"] = b.amount
+            r["is_active"] = not b.winning_bid
+            r["leader"] = b.bidder.username
+        
+
+        # user-specific bid fields
+        user_high_bid = "" 
+        user_bids = user.bids_made.filter(listing=w)
+        if user_bids.count() > 0:
+            user_top_bid = user_bids.order_by('-amount').first()
+            user_high_bid = str(user_top_bid.amount)
+        r["user_high_bid"] = user_high_bid
+
+        results.append(r)
 
     return render(request, "auctions/watchlist.html", {
-        "watchlist": my_watchlist
+        "watchlist": results
     })
 
 
@@ -233,8 +267,8 @@ def close(request, listing_id):
     if request.method == "POST":
         # Check the user owns the auction, in case there were client-side shenanigans
         listing = Listing.objects.get(id=listing_id)
-        owner = Listing.owner
-        if request.user == owner:
+        owner = listing.owner
+        if request.user.username == owner.username:
 
             # Get the highest bid and declare it the winner
             hb = listing.high_bid()
@@ -290,8 +324,9 @@ def categories(request):
     cats = []
     for cat in Listing.CATEGORIES:
         catDict = {}
+        catDict["id"] = cat[0]
         catDict["name"] = cat[1]
-        catDict["count"] = Listing.objects.filter(category=cat[0]).count()
+        catDict["count"] = Listing.objects.filter(category=cat[0]).filter(closed_on__isnull=True).count()
         cats.append(catDict)
  
     # Sort the list by display name
@@ -310,11 +345,11 @@ def category(request, category_name):
     GET = Display a page showing listings in a single category.
     """
     # Get the filtered listings
-    listings = Listing.objects.filter(category=category_name)
+    listings = Listing.objects.filter(category=category_name).filter(closed_on__isnull=True)
     
     # Make "image_url" contain the default image if blank
     for l in listings:
-        listings.image_url = l.final_image_url()
+        l.image_url = l.final_image_url()
 
     # Render the page
     return render(request, "auctions/category.html", {
