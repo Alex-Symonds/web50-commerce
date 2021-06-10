@@ -67,25 +67,25 @@
                     {# Opt 1: If the auction is over, display a box with the result #}
                     {% if high_bid.winning_bid %}
 
-                            <div class="status-strip" 
+                            <div class="status-strip 
 
                         {# set conditional ID and content #}
                         {% if user.is_authenticated and user.username == listing.owner.username %}
-                                                        id="status-closed-owner">
+                                                        status-neg">
                                 You closed this auction on {{ listing.closed_on }}.
                         {% elif user.is_authenticated and user.username == high_bid.bidder.username %}
-                                                        id="status-closed-winner">
+                                                        status-pos-invert status-closed" id="status-closed-winner">
                                 You won this auction. Congratulations!
                         {% elif user.is_authenticated and user_top_bid %}
-                                                        id="status-closed-loser">
+                                                        status-neg">
                                 You lost. Better luck next time!
                         {% else %}      
-                                                        id="status-closed">
+                                                        status-pos-invert status-closed">
                                 This auction is over.             
                         {% endif %}
 
                             </div>
-                            <div id="listing-sold-at-box" class="sold-and-{% if user.is_authenticated and user.username != high_bid.bidder.username and user_top_bid %}lost{% else %}won{% endif %}">
+                            <div id="listing-sold-at-box" class="status-{% if user.is_authenticated and user.username != high_bid.bidder.username and user_top_bid %}neg{% else %}pos{% endif %}">
                                 <h3>Sold at</h3>
                                 <div class="listing-top-bid">
                                     £{{ current_price }}

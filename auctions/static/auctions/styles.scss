@@ -226,69 +226,43 @@ hr{
 }
 
 
-#bid-status-container{
-    h3{
-        padding: 3px 5px;
-        margin-bottom: 0;
-    }
+#bid-status-container h3{
+    padding: 3px 5px;
+    margin-bottom: 0;
 }
 .auction-status-rectangle{
     text-align: center;
     max-width: 30rem;
 }
-
 .status-strip{
     padding: 4px 5px;
 }
-#status-closed-owner{
-    background: #333;   /* status - B */
-    color: white;
-    border: 1px solid #222;
-}
 #status-closed-winner{
-    background: white;  /* status - A */
-    color: $primary_colour;
-    border: 1px solid $primary_border;
-
-    border-bottom: none;
     font-size: 1.5rem;
-    font-weight: bold;
 }
-#status-closed-loser, .sold-and-lost h3, .sold-and-lost div{
-    background: #333; /* status - B */
-    color: white;
-    border: 1px solid #222;
-}
-#status-closed{
-    background: white; /* status - A */
-    color: $primary_colour;
-    border: 1px solid $primary_border;
-
-    border-bottom: none;
-    font-weight: bold;
-}
-
 .status-pos-invert{
     background: white;
     color: $primary_colour;
     border: 1px solid $primary_border;   
 }
-.status-pos{
+.status-pos, .status-pos h3{
     background: $primary_colour;
     color: white;
-    border: 1px solid $primary_border;    
+    border: 1px solid $primary_border; 
 }
-.status-neg{
+.status-neg, .status-neg h3{
     background: #333;
     color: white;
     border: 1px solid #222;    
 }
-
-.sold-and-won h3, .sold-and-won div{
-    background: $primary_colour;
-    color: white;
-    border: 1px solid $primary_border;
+.status-pos h3, .status-neg h3{
+    border: none;
 }
+.status-closed{
+    border-bottom: none;
+    font-weight: bold;
+}
+
 #listing-sold-at-box{
     h3{
         border-top: none;

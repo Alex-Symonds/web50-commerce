@@ -225,37 +225,8 @@ hr {
   padding: 4px 5px;
 }
 
-#status-closed-owner {
-  background: #333;
-  /* status - B */
-  color: white;
-  border: 1px solid #222;
-}
-
 #status-closed-winner {
-  background: white;
-  /* status - A */
-  color: #118C4F;
-  border: 1px solid darkgreen;
-  border-bottom: none;
   font-size: 1.5rem;
-  font-weight: bold;
-}
-
-#status-closed-loser, .sold-and-lost h3, .sold-and-lost div {
-  background: #333;
-  /* status - B */
-  color: white;
-  border: 1px solid #222;
-}
-
-#status-closed {
-  background: white;
-  /* status - A */
-  color: #118C4F;
-  border: 1px solid darkgreen;
-  border-bottom: none;
-  font-weight: bold;
 }
 
 .status-pos-invert {
@@ -264,22 +235,25 @@ hr {
   border: 1px solid darkgreen;
 }
 
-.status-pos {
+.status-pos, .status-pos h3 {
   background: #118C4F;
   color: white;
   border: 1px solid darkgreen;
 }
 
-.status-neg {
+.status-neg, .status-neg h3 {
   background: #333;
   color: white;
   border: 1px solid #222;
 }
 
-.sold-and-won h3, .sold-and-won div {
-  background: #118C4F;
-  color: white;
-  border: 1px solid darkgreen;
+.status-pos h3, .status-neg h3 {
+  border: none;
+}
+
+.status-closed {
+  border-bottom: none;
+  font-weight: bold;
 }
 
 #listing-sold-at-box h3 {
