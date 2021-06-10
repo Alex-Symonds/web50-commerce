@@ -3,13 +3,25 @@
 {% block body %}
     <div class="container">
         <div class="row">
-            <div class="col">
+            <div class="col-12">
                 <h2>Categories</h2>
-                <ul>
+
                     {% for cat in categories %}
-                        <li><a href="{% url 'category' cat.id %}">{{ cat.name }}</a> ({{ cat.count }} listings)</li>
+                        <div id="catlist">
+                            <a class="category-button  
+                                {% if cat.count == 0 %}
+                                    cat-has-0
+                                {% else %}
+                                    status-pos-invert
+                                {% endif %}
+                                " href="{% url 'category' cat.id %}">
+                                <span class="cat-name">{{ cat.name }}</span><span class="cat-counter">{{ cat.count }} listings</span>
+                            </a>
+                        </div>
+
+
                     {% endfor %}
-                </ul>
+
             </div>
         </div>
     </div>
