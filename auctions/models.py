@@ -71,6 +71,18 @@ class Listing(models.Model):
     def high_bid(self):
          return self.bids.order_by('-amount').first()
 
+    def truncate_title(self, num_chars):
+        if len(self.title) <= num_chars:
+            return self.title
+        else:
+            return self.title[:num_chars] + "..."
+
+    def truncate_desc(self, num_chars):
+        if len(self.description) <= num_chars:
+            return self.description
+        else:
+            return self.description[:num_chars] + "..."
+
 
 
 

@@ -10,17 +10,19 @@ from datetime import datetime
 
 from .models import User, Listing, Bid, Comment
 from .forms import NewListingForm, BidForm, CommentForm
+from .util import gbp, process_for_listpage
+from .consts import CHARS_TITLE_LISTS, CHARS_DESC_LISTS
 
 from django.forms import ModelForm
+
+
+
 
 def index(request):
     current = Listing.objects.filter(closed_on__isnull=True)
 
-    for l in current:
-        l.image_url = l.final_image_url()
-
     return render(request, "auctions/index.html", {
-        "active_auctions": current
+        "active_auctions": process_for_listpage(current)
     })
 
 
@@ -163,6 +165,7 @@ def watchlist(request):
     POST = Toggle listing in watchlist
     GET = Display watchlist
     """
+    CHARS_TITLE_WATCHLIST = 20
     # Prepare the user and current watchlist, which are needed either way
     user = User.objects.get(username=request.user)
     my_watchlist = user.watching.all()
@@ -186,7 +189,7 @@ def watchlist(request):
 
         # General stuff directly from the model
         r["id"] = w.id
-        r["title"] = w.title
+        r["title"] = w.truncate_title(CHARS_TITLE_WATCHLIST)
         r["image_url"] = w.final_image_url()
         r["created_on"] = w.created_on
         r["closed_on"] = w.closed_on
@@ -346,13 +349,9 @@ def category(request, category_name):
     """
     # Get the filtered listings
     listings = Listing.objects.filter(category=category_name).filter(closed_on__isnull=True)
-    
-    # Make "image_url" contain the default image if blank
-    for l in listings:
-        l.image_url = l.final_image_url()
 
     # Render the page
-    return render(request, "auctions/category.html", {
-        "category": category_name,
-        "catlist": listings
+    return render(request, "auctions/index.html", {
+        "heading": category_name,
+        "active_auctions": process_for_listpage(listings)
     })  

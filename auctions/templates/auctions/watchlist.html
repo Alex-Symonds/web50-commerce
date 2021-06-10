@@ -7,10 +7,12 @@
         {% for auction in watchlist %}
         <div class="row watchlist-row">
             <div class="col-1">
-                <img class="auclist-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
+                <div class="list-pic-container">
+                    <img class="auclist-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
+                </div>
             </div>
             <div class="col">
-                <h3><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
+                <h3 class="hlink"><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
             </div>
             <div class="col-4 align-self-center">
                 <div class="watchlist-price-container">
@@ -20,15 +22,15 @@
                     No bid 
                 {% else %}
                     {% if auction.leader == user.username %}
-                    <span class="my-bid-status-tag my-bid-status-leader my-bid-status-watchlist">top bid</span>
+                    <span class="my-bid-status-tag colour-pos my-bid-status-watchlist">top bid</span>
                     {% else %}
-                    <span class="my-bid-status-tag my-bid-status-beaten my-bid-status-watchlist">beaten</span> <strong>£{{ auction.user_high_bid }}</strong>
+                    <span class="my-bid-status-tag colour-neg my-bid-status-watchlist">beaten</span> <strong>£{{ auction.user_high_bid }}</strong>
                     {% endif %}
                 {% endif %}
                 </div>
             </div>
             <div class="col-2 align-self-center">
-                <div class="watchlist-status {% if auction.is_active %}watchlist-active">Active {% else %}watchlist-closed">Closed {% endif %}</div>
+                <div class="watchlist-status {% if auction.is_active %}colour-pos">Active {% else %}colour-neg">Closed {% endif %}</div>
                 <div class="watchlist-dates">
                 {% if not auction.is_active %}
                     [-] {{ auction.closed_on }}

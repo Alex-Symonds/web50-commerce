@@ -3,18 +3,7 @@
 {% block body %}
     <div class="container">
 
-
-        <div class="row"> {# row for the listing stuff: pic, details, title, bids, etc. #}
-
-            <div class="col-4">{# pic/details column #}
-                <img id="listing-pic" src="{{ listing.image_url }}" alt="{{ listing.title }}">
-                <div id="listing-details">
-                    Listed by: <strong>{{ listing.owner }}</strong>. <br />
-                    Category: {{ listing.category }}
-                </div>
-            </div>
-
-
+        <div class="row">
             <div class="col">{# main column #}
                 <h2>{{ listing.title }}</h2>
 
@@ -34,23 +23,43 @@
                         </form>
                     {% endif %}
                         <div id="num-bids-rcvd">
-                            <p><strong>{{ num_bids }}</strong> bid(s) received.</p>
+                            <p><strong>{{ num_bids }}</strong> bid(s).</p>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
 
+        <div class="row"> {# row for the listing stuff: pic, details, title, bids, etc. #}
 
-                <div class="row">
-                    <div id="listing-desc" class="col">
-                        {{ listing.description }}
+            <div id="listing-pic-container" class="col-4">{# pic/details column #}
+                <img id="listing-pic" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+                <div id="listing-details">
+                    Listed by: <strong>{{ listing.owner }}</strong>. <br />
+                    Category: 
+                    {% if listing.category == "" %}
+                        Uncategorised
+                    {% else %}
+                        {{ listing.category }}
+                    {% endif %}
+                </div>
+            </div>
+
+
+            <div class="col">{# main column #}
+
+
+                <div class="row listing-desc-container">
+                    <div id="listing-desc" class="col-12">
+                        <h3>Description</h3>
+                        <span>{{ listing.description }}</span>
                     </div>
                 </div>
 
 
-
                 <div class="row">{# row for the bid/auction status/management #}
-                    <div class="col">
+                    <div class="col-12">
 
                     {# Auction status: if it's over, show the result; if it's ongoing, show the price and, if I'm the owner, a button to end it #}
                         <div id="bid-status-container" {% if high_bid.winning_bid %} class="auction-status-rectangle" {% endif %}>
@@ -118,9 +127,9 @@
                         {% if not user_top_bid %}
                             You have not bid on this item.
                         {% elif high_bid.bidder.username == user.username %}
-                            <span class="my-bid-status-tag my-bid-status-leader my-bid-status-listing">top bid</span> Your bid is winning.             
+                            <span class="my-bid-status-tag colour-pos my-bid-status-listing">top bid</span> Your bid is winning.             
                         {% else %}
-                            <span class="my-bid-status-tag my-bid-status-beaten my-bid-status-listing">beaten</span> You bid: £{{ user_top_bid }}
+                            <span class="my-bid-status-tag colour-neg my-bid-status-listing">beaten</span> You bid: £{{ user_top_bid }}
                         {% endif %}
                         </div>
                         
@@ -138,11 +147,12 @@
                 </div>{# row for bid/auction status/management #}
 
     
+
             </div>{# col for title, watchlist, paragraph and bid stuff #}
         </div>{# row for the pic, title, watchlist toggle, paragraph desc and bid stuff #}
         
 
-
+        {% if user.is_authenticated or comments %}
         <div class="row">{# comment section #}
             <div class="col">
                 <div id="comment-container">
@@ -180,7 +190,7 @@
                 </div>{# comment section container #}
             </div>{# col for comment section #}
         </div>{# row for comment section #}
-
+        {% endif %}
 
 
     </div>{# the container for the entire kaboodle #}

@@ -1,12 +1,9 @@
-/*  "Money green" = 118C4F*/
-/*$heading-font: PT Sans Narrow, Helvetica, Arial, sans-serif;
-$content-font: PT Sans, Arial, Helvetica, sans-serif;*/
 body {
   padding: 10px;
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, label {
   font-weight: bold;
   color: #118C4F;
 }
@@ -15,10 +12,61 @@ h1 {
   font-family: Montserrat, Arial, Helvetica, sans-serif;
 }
 
-h2, h3, h4, h5, h6 {
+h2, h3, h4, h5, h6, label {
   font-family: Raleway, Helvetica, Arial, sans-serif;
 }
 
+h3 {
+  width: 100%;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #eee;
+}
+
+.hlink {
+  border-bottom: none;
+}
+
+small {
+  color: #666;
+  font-style: italic;
+}
+
+input:not([type=submit]), textarea, select {
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  outline: none;
+}
+
+input:not([type=submit]):focus, input:not([type=submit]):active, input:not([type=submit]):focus-visible,
+textarea:focus, textarea:active, textarea:focus-visible,
+select:focus, select:active, select:focus-visible {
+  box-shadow: 2px 2px 4px rgba(0, 64, 120, 0.2);
+}
+
+.my-form-button {
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background: #1e90ff;
+  height: 28px;
+  padding: 2px 12px;
+}
+.my-form-button:hover, .my-form-button:focus, .my-form-button:active {
+  background: #0e80ef;
+}
+
+.colour-pos {
+  color: white;
+  background: green;
+}
+
+.colour-neg {
+  color: white;
+  background: #222;
+}
+
+/* layout stuff */
 #page-title {
   margin-left: 5px;
   font-size: 3rem;
@@ -37,20 +85,17 @@ h2, h3, h4, h5, h6 {
 .navbar-container {
   display: flex;
   justify-content: left;
-  /*border-top: 1px solid $colour1;*/
   background: #118C4F;
 }
 
 .my-nav-item {
   position: relative;
   background: transparent;
-  /*color: $colour1;*/
   font-weight: bold;
   font-size: 1.1rem;
   font-family: Raleway, Helvetica, Arial, sans-serif;
 }
 .my-nav-item a {
-  /* color: $colour1;*/
   color: white;
 }
 
@@ -74,9 +119,9 @@ hr {
 
 /* homepage */
 .auclist-pic {
-  min-width: 64px;
   width: 100%;
   height: auto;
+  overflow: hidden;
 }
 
 .auclist-row {
@@ -143,6 +188,10 @@ hr {
   margin-top: -1px;
 }
 
+#listing-pic-container {
+  margin-bottom: 1rem;
+}
+
 #listing-pic {
   max-width: 100%;
   max-height: 500px;
@@ -157,6 +206,9 @@ hr {
 #listing-desc {
   margin-left: 3px;
   margin-bottom: 3rem;
+}
+#listing-desc h3, #listing-desc span {
+  padding-left: 3px;
 }
 
 #bid-status-container h3 {
@@ -175,36 +227,59 @@ hr {
 
 #status-closed-owner {
   background: #333;
+  /* status - B */
   color: white;
+  border: 1px solid #222;
 }
 
 #status-closed-winner {
   background: white;
-  border: 1px solid #118C4F;
+  /* status - A */
+  color: #118C4F;
+  border: 1px solid darkgreen;
   border-bottom: none;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #118C4F;
 }
 
 #status-closed-loser, .sold-and-lost h3, .sold-and-lost div {
-  border: 1px solid #222;
   background: #333;
+  /* status - B */
   color: white;
+  border: 1px solid #222;
 }
 
 #status-closed {
   background: white;
-  border: 1px solid #118C4F;
-  border-bottom: none;
+  /* status - A */
   color: #118C4F;
+  border: 1px solid darkgreen;
+  border-bottom: none;
   font-weight: bold;
 }
 
-.sold-and-won h3, .sold-and-won div {
+.status-pos-invert {
+  background: white;
+  color: #118C4F;
   border: 1px solid darkgreen;
+}
+
+.status-pos {
   background: #118C4F;
   color: white;
+  border: 1px solid darkgreen;
+}
+
+.status-neg {
+  background: #333;
+  color: white;
+  border: 1px solid #222;
+}
+
+.sold-and-won h3, .sold-and-won div {
+  background: #118C4F;
+  color: white;
+  border: 1px solid darkgreen;
 }
 
 #listing-sold-at-box h3 {
@@ -213,12 +288,6 @@ hr {
 }
 #listing-sold-at-box div {
   border-top: none;
-}
-
-h3.bid-auction-ongoing {
-  color: #118C4F;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 2px;
 }
 
 .listing-top-bid {
@@ -238,29 +307,20 @@ h3.bid-auction-ongoing {
   margin-top: 0.5rem;
   padding: 4px;
 }
-#new-bid-form input[type=number] {
-  border: 1px solid #1e90ff;
-  border-radius: 5px;
-  outline: none;
-}
-#new-bid-form input[type=number]:focus, #new-bid-form input[type=number]:active, #new-bid-form input[type=number]:focus-visible {
-  box-shadow: 2px 2px 4px rgba(0, 64, 120, 0.2);
-}
 
 #comment-container h3 {
-  color: #118C4F;
-  border-bottom: 1px solid #eee;
   margin-top: 2rem;
 }
 
-.comment-user {
-  margin-left: 7px;
-}
-
-.comment-box {
-  position: relative;
-  border-bottom: 1px solid #ddd;
+#comment-form {
   margin-bottom: 2rem;
+}
+#comment-form textarea {
+  width: 100%;
+  min-height: 80px;
+  max-height: 160px;
+  height: 4rem;
+  padding: 7px;
 }
 
 .comment-header {
@@ -271,6 +331,10 @@ h3.bid-auction-ongoing {
   border: 1px solid #ccc;
   border-bottom: none;
   background: #eee;
+}
+
+.comment-user {
+  margin-left: 7px;
 }
 
 .comment-owner-tag {
@@ -290,55 +354,22 @@ h3.bid-auction-ongoing {
   padding: 3px;
 }
 
+.comment-box {
+  position: relative;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 2rem;
+}
+
 .comment-content {
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
   padding: 0.75rem 0.5rem 1rem;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
-  /*padding-top: 0.75rem;
-  padding-bottom: 1rem;*/
-}
-
-#comment-form {
-  margin-bottom: 2rem;
-}
-#comment-form textarea {
-  width: 100%;
-  min-height: 80px;
-  max-height: 160px;
-  height: 4rem;
-  padding: 7px;
-  border: 1px solid #aaa;
-  border-radius: 5px;
-  outline: none;
-}
-#comment-form textarea:focus, #comment-form textarea:active, #comment-form textarea:focus-visible {
-  box-shadow: 2px 2px 4px rgba(0, 64, 120, 0.2);
 }
 
 #auction-management h3 {
   margin: 2rem 0 0.5rem;
-  border-bottom: 1px solid #eee;
-}
-
-.my-form-button {
-  border: none;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  background: #1e90ff;
-  height: 28px;
-  padding: 2px 12px;
-}
-.my-form-button:hover, .my-form-button:focus, .my-form-button:active {
-  background: #0e80ef;
-}
-
-.clearfix:after {
-  display: block;
-  content: "";
-  clear: both;
 }
 
 /* watchlist */
@@ -347,6 +378,11 @@ h3.bid-auction-ongoing {
   padding: 7px;
   margin-bottom: 0px;
   border-bottom: 1px solid #eee;
+}
+
+.list-pic-container {
+  max-height: 8rem;
+  overflow: hidden;
 }
 
 .watchlist-dates {
@@ -364,26 +400,16 @@ h3.bid-auction-ongoing {
 
 .watchlist-status {
   padding: 2px 5px;
-  color: white;
   font-weight: bold;
   font-size: 1.1rem;
   width: 100%;
   text-align: center;
 }
 
-.watchlist-active {
-  background: green;
-}
-
-.watchlist-closed {
-  background: #333;
-}
-
 .my-bid-status-tag {
   border-radius: 5px;
   font-size: 0.8rem;
   padding: 2px 5px;
-  color: white;
 }
 
 .my-bid-status-tag-watchlist {
@@ -394,12 +420,28 @@ h3.bid-auction-ongoing {
   margin-left: 0;
 }
 
-.my-bid-status-leader {
-  background: green;
+/* Create listing form */
+#listing_form_wrapper form {
+  margin-top: 1rem;
+}
+#listing_form_wrapper small {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0;
 }
 
-.my-bid-status-beaten {
-  background: #222;
+.form-label {
+  min-height: 3rem;
+  position: relative;
+  text-align: right;
+}
+
+input#id_title {
+  width: 20rem;
+}
+
+input#id_image_url, textarea#id_description {
+  width: 30rem;
 }
 
 /*# sourceMappingURL=styles.css.map */
