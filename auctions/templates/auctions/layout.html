@@ -6,6 +6,10 @@
         <title>{% block title %}Auctions{% endblock %}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+
     </head>
     <body>
         <div id="title-user-container" class="container">
@@ -16,7 +20,8 @@
 
                 <div id="signed-in-box" class="col">
                     {% if user.is_authenticated %}
-                        Signed in as <strong>{{ user.username }}</strong>.
+                        Signed in as <strong>{{ user.username }}</strong>.<br />
+                        <a href="{% url 'logout' %}">Log Out</a>
                     {% else %}
                         Not signed in.
                     {% endif %}
@@ -36,9 +41,6 @@
                         </li>
                         <li class="nav-item my-nav-item">
                             <a class="nav-link" href="{% url 'create_listing' %}">Create Listing</a>
-                        </li>
-                        <li class="nav-item my-nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                         </li>
                     {% else %}
                         <li class="nav-item my-nav-item">

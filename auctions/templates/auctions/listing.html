@@ -2,18 +2,23 @@
 
 {% block body %}
     <div class="container">
-        <div class="row"> <!-- row for the listing stuff -->
-            <div class="col-4">
+
+
+        <div class="row"> {# row for the listing stuff: pic, details, title, bids, etc. #}
+
+            <div class="col-4">{# pic/details column #}
                 <img id="listing-pic" src="{{ listing.image_url }}" alt="{{ listing.title }}">
                 <div id="listing-details">
                     Listed by: <strong>{{ listing.owner }}</strong>. <br />
                     Category: {{ listing.category }}
                 </div>
-            </div> <!-- pic col-->
+            </div>
 
-            <div class="col">
+
+            <div class="col">{# main column #}
                 <h2>{{ listing.title }}</h2>
-                <div class="row">
+
+                <div class="row">{# row for the watch toggle and bid counter #}
                     <div id="watch-container" class="col">
                     {% if user.is_authenticated %}
                         <form action="{% url 'watchlist' %}" method="POST">
@@ -31,67 +36,84 @@
                         <div id="num-bids-rcvd">
                             <p><strong>{{ num_bids }}</strong> bid(s) received.</p>
                         </div>
-                    </div><!-- watch-container div -->
-                </div><!-- row for watchlist container -->
+                    </div>
+                </div>
+
+
 
                 <div class="row">
                     <div id="listing-desc" class="col">
                         {{ listing.description }}
                     </div>
-                </div><!-- row for the paragraph desc -->
+                </div>
 
-                <div class="row">
+
+
+                <div class="row">{# row for the bid/auction status/management #}
                     <div class="col">
+
+                    {# Auction status: if it's over, show the result; if it's ongoing, show the price and, if I'm the owner, a button to end it #}
                         <div id="bid-status-container" {% if high_bid.winning_bid %} class="auction-status-rectangle" {% endif %}>
 
+                    {# Opt 1: If the auction is over, display a box with the result #}
                     {% if high_bid.winning_bid %}
+
+                            <div class="status-strip" 
+
+                        {# set conditional ID and content #}
                         {% if user.is_authenticated and user.username == listing.owner.username %}
-                            <div id="status-closed-owner" class="status-strip">
+                                                        id="status-closed-owner">
                                 You closed this auction on {{ listing.closed_on }}.
-                            </div>
                         {% elif user.is_authenticated and user.username == high_bid.bidder.username %}
-                            <div id="status-closed-winner" class="status-strip">
+                                                        id="status-closed-winner">
                                 You won this auction. Congratulations!
-                            </div>
                         {% elif user.is_authenticated and user_top_bid %}
-                            <div id="status-closed-loser" class="status-strip">
-                                Someone else won. Better luck next time!
-                            </div>
+                                                        id="status-closed-loser">
+                                You lost. Better luck next time!
                         {% else %}      
-                            <div id="status-closed" class="status-strip">
-                                This auction is over.
-                            </div>                                                    
+                                                        id="status-closed">
+                                This auction is over.             
                         {% endif %}
+
+                            </div>
                             <div id="listing-sold-at-box" class="sold-and-{% if user.is_authenticated and user.username != high_bid.bidder.username and user_top_bid %}lost{% else %}won{% endif %}">
                                 <h3>Sold at</h3>
                                 <div class="listing-top-bid">
                                     £{{ current_price }}
-                                </div><!-- closing div containing bid value -->
+                                </div>
                             </div>
-                        </div><!-- bid status container div --> 
+
+                {# Opt 2: If the auction is ongoing and the user is the owner, display a form to close the auction #}
                 {% elif user.username == listing.owner.username and not high_bid.winning_bid %}
-                        <h3 class="bid-auction-ongoing">Auction Management</h3>
-                        <div class="listing-top-bid">£{{ current_price }}</div>
-                        <form action="{% url 'close' listing_id=listing.id %}" method="POST">
-                            {% csrf_token %}
-                            <input id="close-auction" class="my-form-button" name="close_auction" type="submit" value="Close Auction">
-                        </form>
-                    </div><!-- bid status container div --> 
+                            <h3 class="bid-auction-ongoing">Auction Management</h3>
+                            <div class="listing-top-bid">
+                                £{{ current_price }}
+                            </div>
+                            <form action="{% url 'close' listing_id=listing.id %}" method="POST">
+                                {% csrf_token %}
+                                <input id="close-auction" class="my-form-button" name="close_auction" type="submit" value="Close Auction">
+                            </form>
      
+                {# Opt 3: If the auction is ongoing and the user is not the owner, display the current price #}
                 {% else %}      
                             <h3 class="bid-auction-ongoing"> {% if num_bids == 0 %} Opening price {% else %} Current top bid {% endif %} </h3>
                             <div class="listing-top-bid">
                                 £{{ current_price }}
-                            </div><!-- closing div containing bid value -->
-                        </div><!-- bid status container div -->                    
+                            </div>                   
                 {% endif %}
 
-                    {% if not high_bid.winning_bid %}
-                        {% if not user.is_authenticated %}
+                        </div>{# end of bid status container #}
+
+
+
+                {# Bidding on active auctions: logged-in non-owners get a note about their bids and a form; anons get a note encouraging logging in #}
+                {% if not high_bid.winning_bid %}
+                    {% if not user.is_authenticated %}
                         <div id="listing-your-bid">
                             <a href="{% url 'login' %}">Log in</a> to bid on this item.
                         </div>
-                        {% elif user.is_authenticated and user.username != listing.owner.username %}
+
+                    {% elif user.is_authenticated and user.username != listing.owner.username %}
                         <div id="listing-your-bid">
                         {% if not user_top_bid %}
                             You have not bid on this item.
@@ -101,6 +123,7 @@
                             <span class="my-bid-status-tag my-bid-status-beaten my-bid-status-listing">beaten</span> You bid: £{{ user_top_bid }}
                         {% endif %}
                         </div>
+                        
                         <form id="new-bid-form" action="{% url 'bid' listing_id=listing.id %}" method="POST">
                             {% csrf_token %}
                             {{ bid_form.management_form }}
@@ -109,16 +132,22 @@
                             {% endfor %}
                             <input type="submit" class="my-form-button" value="bid now">
                         </form>
-                        {% endif %}
                     {% endif %}
-                    </div><!-- col for bid status section -->
-                </div><!-- row for bid status section -->
-            </div><!-- col for title, watchlist, paragraph and bid stuff -->
-        </div><!-- row for the pic, title, watchlist toggle, paragraph desc and bid stuff -->
+                {% endif %}
+                    </div>{# col for bid/auction status/management #}
+                </div>{# row for bid/auction status/management #}
+
+    
+            </div>{# col for title, watchlist, paragraph and bid stuff #}
+        </div>{# row for the pic, title, watchlist toggle, paragraph desc and bid stuff #}
         
-        <div class="row">
+
+
+        <div class="row">{# comment section #}
             <div class="col">
                 <div id="comment-container">
+                    
+                    {# display form to add a comment #}
                     <h3>Comments</h3>
                     {% if user.is_authenticated %}
                         <form id="comment-form" action="{% url 'comment' listing.id %}" method="POST">
@@ -130,6 +159,8 @@
                             <input type="submit" value="Add comment" class="my-form-button">
                         </form>
                     {% endif %}
+
+                    {# display existing comments #}
                     {% for comment in comments %}
                         <div class="comment-box">
                             <div class="comment-header">
@@ -144,12 +175,14 @@
                             <div class="comment-content">{{ comment.content }}</div>
                         </div>
                     {% empty %}
-                        <p>No comments.</p>
+                        
                     {% endfor %}
+                </div>{# comment section container #}
+            </div>{# col for comment section #}
+        </div>{# row for comment section #}
 
-                </div><!-- comment section container-->
-            </div><!-- col for comment section -->
-        </div><!-- row for comment section -->
-    </div><!-- the container for the entire kaboodle-->
+
+
+    </div>{# the container for the entire kaboodle #}
 
 {% endblock %}
