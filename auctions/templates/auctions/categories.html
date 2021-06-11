@@ -4,6 +4,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
+                
                 <h2>Categories</h2>
 
                     {% for cat in categories %}
@@ -15,11 +16,9 @@
                                     status-pos-invert
                                 {% endif %}
                                 " href="{% url 'category' cat.id %}">
-                                <span class="cat-name">{{ cat.name }}</span><span class="cat-counter">{{ cat.count }} listings</span>
+                                <span class="cat-name">{{ cat.name }}</span><span class="cat-counter">{{ cat.count }} listing{% if cat.count != 1 %}s{% endif %}</span>
                             </a>
                         </div>
-
-
                     {% endfor %}
 
             </div>

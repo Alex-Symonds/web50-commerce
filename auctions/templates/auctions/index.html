@@ -3,24 +3,30 @@
 {% block body %}
     <div id="active-listings" class="container">
         <h2>
-            {% if heading %}
+        {% if heading %}
             {{ heading }}
-            {% else %}
+        {% else %}
             Active Listings
-            {% endif %}
+        {% endif %}
         </h2>
+
         {% for auction in active_auctions %}
             <div class="row auclist-row">
+
                 <div id="listing-pic-container" class="col-2">
                     <img class="auclist-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
                 </div>
+
                 <div class="col">
                     <h3 class="hlink"><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
                     <div class="top-bid">Price: {{ auction.current_price }}</div>
-                    <div class="list-description">{{ auction.description }}</div>
+                    <div>{{ auction.description }}</div>
                     <div class="creation_time">{{ auction.created_on }}</div>
                 </div>
+
             </div>
+        {% empty %}
+            <p>There are no active auctions {% if heading %} in this category{% endif %}.</p>
         {% endfor %}
     </div>
 {% endblock %}

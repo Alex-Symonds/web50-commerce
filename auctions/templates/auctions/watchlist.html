@@ -5,7 +5,7 @@
         <h2>{{ user.username }}'s Watchlist</h2>
 
         {% for auction in watchlist %}
-        <div class="row watchlist-row">
+        <div class="row watchlist-row {% if auction.owner == user.username %} watching-my-auction {% endif %}">
             <div class="col-1">
                 <div class="list-pic-container">
                     <img class="auclist-pic" src="{{ auction.image_url }}" alt="{{ auction.title }}">
@@ -13,14 +13,17 @@
             </div>
             <div class="col">
                 <h3 class="hlink"><a href="{% url 'listing' auction.id %}">{{ auction.title }}</a></h3>
+                <div>Owner: {% if auction.owner == user.username %}you{% else %}{{ auction.owner }}{% endif %}</div>
             </div>
             <div class="col-4 align-self-center">
                 <div class="watchlist-price-container">
-                    Now: <span class="watchlist-current">£{{ auction.high_bid }}</span><br />
-                    You: 
-                {% if auction.user_high_bid == "" %}
-                    No bid 
+                    Now: <span class="watchlist-current">{{ auction.high_bid }}</span><br /> 
+                {% if auction.owner == user.username %}
+                    Change: +{{ auction.bid_increase }}
+                {% elif auction.user_high_bid == "" %}
+                    You: No bid 
                 {% else %}
+                    You: 
                     {% if auction.leader == user.username %}
                     <span class="my-bid-status-tag colour-pos my-bid-status-watchlist">top bid</span>
                     {% else %}

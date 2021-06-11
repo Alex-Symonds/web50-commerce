@@ -20,6 +20,10 @@ h2 {
   margin-bottom: 1.75rem;
 }
 
+h2.has-subtitle {
+  margin-bottom: 0;
+}
+
 h3 {
   width: 100%;
   padding-bottom: 3px;
@@ -28,6 +32,7 @@ h3 {
 
 .hlink {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
 small {
@@ -68,6 +73,10 @@ select:focus, select:active, select:focus-visible {
 .colour-neg {
   color: white;
   background: #222;
+}
+
+.watching-my-auction {
+  background: #fafafa;
 }
 
 /* layout stuff */
@@ -121,7 +130,7 @@ hr {
   margin-bottom: 2rem;
 }
 
-/* homepage */
+/* index page */
 .auclist-pic {
   width: 100%;
   height: auto;
@@ -456,7 +465,6 @@ input#id_image_url, textarea#id_description {
   text-decoration: none;
   font-weight: bold;
   font-style: normal;
-  /*background: $accent;*/
   box-shadow: 1px 1px 3px rgba(0, 50, 30, 0.5);
 }
 

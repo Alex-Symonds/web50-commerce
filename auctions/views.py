@@ -1,3 +1,5 @@
+# Handles views for Auctions website
+
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -6,27 +8,30 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 import decimal
+import operator
 from datetime import datetime
 
 from .models import User, Listing, Bid, Comment
 from .forms import NewListingForm, BidForm, CommentForm
-from .util import gbp, process_for_listpage
+from .util import gbp, process_for_listpage, toggle_watchlist
 from .consts import CHARS_TITLE_LISTS, CHARS_DESC_LISTS
 
 from django.forms import ModelForm
 
-
-
-
 def index(request):
-    current = Listing.objects.filter(closed_on__isnull=True)
-
+    """
+    Display index page with summaries of all active listings.
+    """
+    current = Listing.objects.filter(closed_on__isnull=True).order_by('-created_on')
     return render(request, "auctions/index.html", {
         "active_auctions": process_for_listpage(current)
     })
 
 
 def login_view(request):
+    """
+    Display login page.
+    """
     if request.method == "POST":
 
         # Attempt to sign user in
@@ -47,11 +52,17 @@ def login_view(request):
 
 
 def logout_view(request):
+    """
+    Logout the current user.
+    """
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
 
 def register(request):
+    """
+    Register a user. GET provides the form, POST processes the form.
+    """
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
@@ -82,8 +93,7 @@ def register(request):
 @login_required
 def create_listing(request):
     """
-    GET = Form to create a listing
-    POST = Process the new listing and forward to index
+    Create a listing. GET provides a form, POST processes the form then forwards to the new listing.
     """
     if request.method == "POST":
         user_form = NewListingForm(request.POST)
@@ -98,7 +108,9 @@ def create_listing(request):
             new_listing = Listing(title=clean_title, description=clean_desc, starting_bid=clean_start_bid, image_url=clean_img_url, category=clean_category, owner=user)
             new_listing.save()
 
-            return HttpResponseRedirect(reverse("index"))
+            toggle_watchlist(new_listing.id, user)
+
+            return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":new_listing.id}))
 
     else:
         return render(request, "auctions/create_listing.html", {
@@ -110,7 +122,7 @@ def create_listing(request):
 
 def listing(request, listing_id):
     """
-    GET = Display a single listing
+    Display a page for a single listing
     """
     # Grab the listing and set the image URL to default if there isn't one
     myListing = Listing.objects.get(id=listing_id)
@@ -150,7 +162,7 @@ def listing(request, listing_id):
         "listing": myListing,
         "watching": watching,
         "num_bids": num_bids,
-        "current_price": current_price,
+        "current_price": gbp(current_price),
         "high_bid": high_bid,
         "user_top_bid": user_top_bid,
         "comments": comments,
@@ -162,8 +174,7 @@ def listing(request, listing_id):
 @login_required
 def watchlist(request):
     """
-    POST = Toggle listing in watchlist
-    GET = Display watchlist
+    Handle user-specific watchlist. GET displays current watchlist; POST toggles the membership of listings.
     """
     CHARS_TITLE_WATCHLIST = 20
     # Prepare the user and current watchlist, which are needed either way
@@ -172,13 +183,9 @@ def watchlist(request):
 
     # Toggle listing in user's watchlist
     if request.method == "POST":
-        listing_id = request.POST.get("listing_id", "")
-        l = Listing.objects.get(id=listing_id)
 
-        if l in my_watchlist:
-            user.watching.remove(l)
-        else:
-            user.watching.add(l)
+        listing_id = request.POST.get("listing_id", "")
+        toggle_watchlist(listing_id, user)
 
         return HttpResponseRedirect(reverse("listing", kwargs={"listing_id":listing_id}))
 
@@ -193,18 +200,20 @@ def watchlist(request):
         r["image_url"] = w.final_image_url()
         r["created_on"] = w.created_on
         r["closed_on"] = w.closed_on
+        r["owner"] = w.owner.username
         
         # Bid related fields
         b = w.high_bid()
         if b == None:
-            r["high_bid"] = w.starting_bid
+            r["high_bid"] = gbp(w.starting_bid)
             r["is_active"] = w.closed_on == None
-            r["leader"] = "no bids"            
+            r["leader"] = "no bids"  
+            r["bid_increase"] = gbp(0)
         else:
-            r["high_bid"] = b.amount
+            r["high_bid"] = gbp(b.amount)
             r["is_active"] = not b.winning_bid
             r["leader"] = b.bidder.username
-        
+            r["bid_increase"] =  gbp(b.amount - w.starting_bid)
 
         # user-specific bid fields
         user_high_bid = "" 
@@ -225,8 +234,7 @@ def watchlist(request):
 @login_required
 def bid(request, listing_id):
     """
-    POST = Place a bid
-    GET = Error page
+    Handle a bid. GET displays an error page, POST processes the bid and redirects back to the listing.
     """
     error_message = "This page is supposed to go whooshing by when you place a bid. Try clicking the back arrow."
 
@@ -262,8 +270,7 @@ def bid(request, listing_id):
 @login_required
 def close(request, listing_id):
     """
-    POST = Close a listing
-    GET = Error page
+    Close a listing. GET shows an error, POST processes the closure of an auction.
     """
     error_message = "This page is supposed to go whooshing by when you close an auction. Try clicking the back arrow."
 
@@ -297,8 +304,7 @@ def close(request, listing_id):
 @login_required
 def add_comment(request, listing_id):
     """
-    POST = Add a comment to a listing
-    GET = Error page
+    Handle a comment. GET shows an error, POST processes the addition of a comment.
     """
     error_message = "This page is supposed to go whooshing by when you add a comment. Try clicking the back arrow."
 
@@ -321,7 +327,7 @@ def add_comment(request, listing_id):
 
 def categories(request):
     """
-    GET = Display a page showing a list of all categories, each of which links to a page filtering listings by that category.
+    Display a page GET = Display a page showing a list of all categories, each of which links to a page filtering listings by that category.
     """
     # Prepare a list of category names and number of listings
     cats = []
@@ -345,13 +351,19 @@ def categories(request):
 
 def category(request, category_name):
     """
-    GET = Display a page showing listings in a single category.
+    Display an index page with summaries of all active listings in a particular category.
     """
     # Get the filtered listings
     listings = Listing.objects.filter(category=category_name).filter(closed_on__isnull=True)
 
+    cat_title = category_name
+    for cat in Listing.CATEGORIES:
+        if cat[0] == category_name:
+            cat_title = cat[1]
+            break
+
     # Render the page
     return render(request, "auctions/index.html", {
-        "heading": category_name,
+        "heading": cat_title,
         "active_auctions": process_for_listpage(listings)
     })  

@@ -4,6 +4,12 @@
 <html lang="en">
     <head>
         <title>{% block title %}Auctions{% endblock %}</title>
+
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'auctions/apple-touch-icon.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'auctions/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'auctions/favicon-16x16.png' %}">
+        <link rel="manifest" href="{% static 'auctions/site.webmanifest' %}">
+
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
@@ -13,7 +19,9 @@
     </head>
     <body>
         <div id="title-user-container" class="container">
+
             <div class="row">
+
                 <div class="col-3">
                     <h1 id="page-title">Auctions</h1>
                 </div>
@@ -26,7 +34,9 @@
                         Not signed in.
                     {% endif %}
                 </div>
+    
             </div>
+
             <div class="navbar-container">
                 <ul class="nav my-nav-bar">
                     <li class="nav-item my-nav-item">
@@ -51,12 +61,14 @@
                         </li>
                     {% endif %}
                 </ul>
-
             </div>
+            
             <hr>
+
         </div>    
 
         {% block body %}
         {% endblock %}
+
     </body>
 </html>

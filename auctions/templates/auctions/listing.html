@@ -3,12 +3,13 @@
 {% block body %}
     <div class="container">
 
-        <div class="row">
-            <div class="col">{# main column #}
-                <h2>{{ listing.title }}</h2>
+        <div class="row">{# row for the title, watchlist toggle and num bids #}
+            <div class="col">
+
+                <h2 class="has-subtitle">{{ listing.title }}</h2>
 
                 <div class="row">{# row for the watch toggle and bid counter #}
-                    <div id="watch-container" class="col">
+                    <div id="watch-container" class="col-sm col-12">
                     {% if user.is_authenticated %}
                         <form action="{% url 'watchlist' %}" method="POST">
                             {% csrf_token %}
@@ -27,13 +28,14 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
 
-        <div class="row"> {# row for the listing stuff: pic, details, title, bids, etc. #}
+        <div class="row"> {# row for the listing stuff: pic, details, bids, etc. #}
 
-            <div id="listing-pic-container" class="col-4">{# pic/details column #}
+            <div id="listing-pic-container" class="col-sm-4 col-12">{# pic/details column #}
                 <img id="listing-pic" src="{{ listing.image_url }}" alt="{{ listing.title }}">
                 <div id="listing-details">
                     Listed by: <strong>{{ listing.owner }}</strong>. <br />
@@ -47,8 +49,7 @@
             </div>
 
 
-            <div class="col">{# main column #}
-
+            <div class="col">{# desc and bid/auction status/form column #}
 
                 <div class="row listing-desc-container">
                     <div id="listing-desc" class="col-12">
@@ -69,7 +70,7 @@
 
                             <div class="status-strip 
 
-                        {# set conditional ID and content #}
+                        {# set conditional class, ID and content as needed #}
                         {% if user.is_authenticated and user.username == listing.owner.username %}
                                                         status-neg">
                                 You closed this auction on {{ listing.closed_on }}.
@@ -85,10 +86,11 @@
                         {% endif %}
 
                             </div>
+                        {# set conditional class with an inline if statement #}
                             <div id="listing-sold-at-box" class="status-{% if user.is_authenticated and user.username != high_bid.bidder.username and user_top_bid %}neg{% else %}pos{% endif %}">
                                 <h3>Sold at</h3>
                                 <div class="listing-top-bid">
-                                    £{{ current_price }}
+                                    {{ current_price }}
                                 </div>
                             </div>
 
@@ -96,7 +98,7 @@
                 {% elif user.username == listing.owner.username and not high_bid.winning_bid %}
                             <h3 class="bid-auction-ongoing">Auction Management</h3>
                             <div class="listing-top-bid">
-                                £{{ current_price }}
+                                {{ current_price }}
                             </div>
                             <form action="{% url 'close' listing_id=listing.id %}" method="POST">
                                 {% csrf_token %}
@@ -107,7 +109,7 @@
                 {% else %}      
                             <h3 class="bid-auction-ongoing"> {% if num_bids == 0 %} Opening price {% else %} Current top bid {% endif %} </h3>
                             <div class="listing-top-bid">
-                                £{{ current_price }}
+                                {{ current_price }}
                             </div>                   
                 {% endif %}
 
@@ -147,18 +149,19 @@
                 </div>{# row for bid/auction status/management #}
 
     
-
             </div>{# col for title, watchlist, paragraph and bid stuff #}
         </div>{# row for the pic, title, watchlist toggle, paragraph desc and bid stuff #}
         
 
+        {# Comment section. Logged in = title + comment form + any existing comments; anon = either title + existing comments, or nothing (if there are no existing comments). #}
         {% if user.is_authenticated or comments %}
         <div class="row">{# comment section #}
             <div class="col">
                 <div id="comment-container">
                     
-                    {# display form to add a comment #}
                     <h3>Comments</h3>
+
+                    {# display form to add a comment #}
                     {% if user.is_authenticated %}
                         <form id="comment-form" action="{% url 'comment' listing.id %}" method="POST">
                             {% csrf_token %}
@@ -170,7 +173,7 @@
                         </form>
                     {% endif %}
 
-                    {# display existing comments #}
+                    {# display any existing comments #}
                     {% for comment in comments %}
                         <div class="comment-box">
                             <div class="comment-header">
