@@ -2,21 +2,17 @@
 
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max
-import decimal
-import operator
+
 from datetime import datetime
 
 from .models import User, Listing, Bid, Comment
 from .forms import NewListingForm, BidForm, CommentForm
 from .util import gbp, process_for_listpage, toggle_watchlist
-from .consts import CHARS_TITLE_LISTS, CHARS_DESC_LISTS
 
-from django.forms import ModelForm
 
 def index(request):
     """

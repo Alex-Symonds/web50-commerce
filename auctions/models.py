@@ -1,7 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.deletion import CASCADE
-from django.db.models import Max
 
 import datetime
 
@@ -30,7 +28,6 @@ class User(AbstractUser):
 
 class Listing(models.Model):
 # Ebay top-level categories
-    
     CATEGORIES = [
         (CAT_FASHION, "Fashion"),
         (CAT_ELECTRONICS, "Electronics"),
